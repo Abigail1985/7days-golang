@@ -10,8 +10,9 @@ import (
 type Context struct {
 	Writer  http.ResponseWriter
 	Request *http.Request
-	Method  string
 	Path    string
+	Method  string
+	Params  map[string]string
 	Status  int
 }
 
@@ -22,6 +23,10 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 		Method:  r.Method,
 		Path:    r.URL.Path,
 	}
+}
+
+func (c *Context) Param(key string) string {
+	return c.Params[key]
 }
 
 func (c *Context) SetStatus(status int) {

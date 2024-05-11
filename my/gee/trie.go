@@ -1,10 +1,5 @@
 package gee
 
-import (
-	"fmt"
-	"strings"
-)
-
 type node struct {
 	pattern  string
 	part     string
@@ -12,32 +7,34 @@ type node struct {
 	isWild   bool
 }
 
-func (n *node) String() string {
-	return fmt.Sprintf("node{pattern=%s, part=%s, isWild=%t}", n.pattern, n.part, n.isWild)
+func (n *node) matchChild(part string) *node {
+	for _, child := range n.children {
+		if child.part == part || child.isWild {
+			return child
+		}
+	}
+	return nil
 }
 
-// pattern是插入的总路径，parts是拆分pattern后的各个结点
 func (n *node) insert(pattern string, parts []string, height int) {
-	fmt.Println("pattern:", pattern, "parts:", parts, "height:", height)
+	// 当递归到树高度和要插入个数一样时即为到末尾
 	if len(parts) == height {
 		n.pattern = pattern
 		return
 	}
 
 	part := parts[height]
-	child := n.matchChild(part) //因为有可能插入的第二条路径跟第一条有些前缀重合
-	if child == nil {
+	child := n.matchChild(part)
+	if child != nil {
 		child = &node{part: part, isWild: part[0] == ':' || part[0] == '*'}
 		n.children = append(n.children, child)
 	}
+
 	child.insert(pattern, parts, height+1)
 }
 
 func (n *node) search(parts []string, height int) *node {
-	if len(parts) == height || strings.HasPrefix(n.part, "*") {
-		if n.pattern == "" {
-			return nil
-		}
+	if len(parts) == height {
 		return n
 	}
 
@@ -52,24 +49,7 @@ func (n *node) search(parts []string, height int) *node {
 	}
 
 	return nil
-}
 
-func (n *node) travel(list *([]*node)) {
-	if n.pattern != "" {
-		*list = append(*list, n)
-	}
-	for _, child := range n.children {
-		child.travel(list)
-	}
-}
-
-func (n *node) matchChild(part string) *node {
-	for _, child := range n.children {
-		if child.part == part || child.isWild {
-			return child
-		}
-	}
-	return nil
 }
 
 func (n *node) matchChildren(part string) []*node {

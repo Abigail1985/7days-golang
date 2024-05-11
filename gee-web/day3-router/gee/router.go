@@ -25,7 +25,7 @@ func parsePattern(pattern string) []string {
 	for _, item := range vs {
 		if item != "" {
 			parts = append(parts, item)
-			if item[0] == '*' {
+			if item[0] == '*' { //一旦遇到 *，函数不再处理后续的路径部分，但parts里会有这个*
 				break
 			}
 		}
@@ -68,6 +68,7 @@ func (r *router) getRoute(method string, path string) (*node, map[string]string)
 			}
 		}
 		return n, params
+		// params是:name中的参数如bob，alice
 	}
 
 	return nil, nil
